@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "funções_clinica.h"
+#include <ctype.h>
 
 int main() {
     No *lista = NULL;
@@ -16,6 +17,7 @@ int main() {
         imprimir_lista(lista);
 
         printf("\n1 - Adicionar paciente\n");
+        printf("2 - Atender próximo paciente (Remover do início)\n");
         printf("0 - Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
@@ -26,6 +28,10 @@ int main() {
         switch (opcao) {
             case 1:
                 inserirPaciente(&lista);
+                break;
+
+            case 2:
+                atenderPaciente(&lista);
                 break;
 
             case 0:

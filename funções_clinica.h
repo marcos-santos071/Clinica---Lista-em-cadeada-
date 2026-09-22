@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 void limpar_tela() {
     #ifdef _WIN32
@@ -13,7 +14,7 @@ void limpar_tela() {
     #endif
 }
 
-// Estrutura do Nó única
+// Estrutura do Nó
 typedef struct No {
     int posicao;
     char nome[32];
@@ -21,29 +22,50 @@ typedef struct No {
     struct No *proximo;
 } No;
 
-// Função para inserir paciente no final da lista
+int nomeValido(const char *nome){
+  if(strlen(nome)== 0) return 0;
+
+  for(int i = 0; nome[i] != '\0'; i++){
+    if(!isalpha((unsigned char)nome[i])&& !isspace((unsigned char)nome[i])){
+        return 0;
+    }
+  }
+  return 1;
+}
+
+
+
+// Função para inserir paciente mantendo os prioritários na frente
 void inserirPaciente(No **inicio) {
+    // DECLARAÇÃO E ALOCAÇÃO DE MEMÓRIA DO NÓ
     No *novo = (No *) malloc(sizeof(No));
     if (novo == NULL) {
         printf("\nErro de alocação de memória!\n");
         return;
     }
 
+    do{
+
     printf("\nDigite o nome do paciente: ");
     fgets(novo->nome, sizeof(novo->nome), stdin);
     novo->nome[strcspn(novo->nome, "\n")] = '\0';
+
+    if(!nomeValido(novo->nome)){
+        printf("--> Nome invávlido! Não digite numeros ou caracteres especias.\n");
+      }
+    }while(!nomeValido(novo->nome));
 
     printf("O paciente %s é prioritário?\n", novo->nome);
     printf("Digite 1 para SIM ou 0 para NÃO: ");
     scanf("%d", &novo->prioritario);
 
-
+    // Limpa o buffer do teclado
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 
     novo->proximo = NULL;
 
-
+    // Caso 1: Lista vazia
     if (*inicio == NULL) {
         novo->posicao = 1;
         *inicio = novo;
@@ -51,23 +73,22 @@ void inserirPaciente(No **inicio) {
         return;
     }
 
-
+    // Caso 2: Paciente prioritário
     if (novo->prioritario == 1) {
-
         if ((*inicio)->prioritario == 0) {
             novo->proximo = *inicio;
             *inicio = novo;
         } else {
-
             No *atual = *inicio;
             while (atual->proximo != NULL && atual->proximo->prioritario == 1) {
                 atual = atual->proximo;
             }
-
             novo->proximo = atual->proximo;
             atual->proximo = novo;
         }
-    }else {
+    }
+    // Caso 3: Paciente comum
+    else {
         No *atual = *inicio;
         while (atual->proximo != NULL) {
             atual = atual->proximo;
@@ -75,6 +96,7 @@ void inserirPaciente(No **inicio) {
         atual->proximo = novo;
     }
 
+    // Recalcula as posições da fila
     int pos = 1;
     for (No *p = *inicio; p != NULL; p = p->proximo) {
         p->posicao = pos++;
@@ -83,7 +105,32 @@ void inserirPaciente(No **inicio) {
     printf("\n--> Paciente '%s' adicionado com sucesso!\n", novo->nome);
 }
 
-// Imprime todos os pacientes da lista
+// Remove o primeiro paciente da lista
+void atenderPaciente(No **inicio) {
+    if (*inicio == NULL) {
+        printf("\nNão há pacientes na fila de espera!\n");
+        return;
+    }
+
+    No *temp = *inicio;
+
+    printf("\n============================\n");
+    printf("--> Chamado para atendimento: %s\n", temp->nome);
+    printf("==============================\n");
+
+    *inicio = (*inicio)->proximo;
+    free(temp);
+
+    // Recalcula as posições numéricas
+    int pos = 1;
+    for (No *p = *inicio; p != NULL; p = p->proximo) {
+        p->posicao = pos++;
+    }
+
+    printf("\n--> Paciente atendido com sucesso e removido da fila!\n");
+}
+
+// Imprime a lista
 void imprimir_lista(No *inicio) {
     printf("\n==============================");
     printf("\n--- Lista de Espera Atual ---");
@@ -103,7 +150,7 @@ void imprimir_lista(No *inicio) {
     }
 }
 
-// Libera a memória de todos os nós
+// Libera toda a memória
 void liberar_lista(No **inicio) {
     No *proximo_no;
 
