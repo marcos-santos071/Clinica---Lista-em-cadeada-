@@ -10,3 +10,13 @@
 	<stdlib.h>
 	<string.h>
 
+1790101354 source:/home/marcos/Documents/Code block/estrutura de dados/Clinica/main.c
+	<stdio.h>
+	<stdlib.h>
+	"funções_clinica.h"
+
+1790102439 /home/marcos/Documents/Code block/estrutura de dados/Clinica/funções_clinica.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
